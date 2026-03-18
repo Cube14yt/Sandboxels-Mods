@@ -442,6 +442,7 @@ elements.e_pipe = {
         logMessage("Draw a pipe, wait for walls to appear, then erase the exit hole.");
     },
     tick: function(pixel) {
+        const charged = pixel.charge || pixel.chargeCD
 		if (!pixel.stage && pixelTicks-pixel.start > 60) {
 			for (var i = 0; i < squareCoords.length; i++) {
 				var coord = squareCoords[i];
@@ -474,7 +475,7 @@ elements.e_pipe = {
 				var coord = squareCoords[i];
 				var x = pixel.x+coord[0];
 				var y = pixel.y+coord[1];
-				if (!isEmpty(x,y,true) && pixelMap[x][y].element === "pipe") {
+				if (!isEmpty(x,y,true) && pixelMap[x][y].element === "e_pipe") {
 					var newPixel = pixelMap[x][y];
 					if (newPixel.stage === 1) {
 						var newColor;
@@ -487,70 +488,72 @@ elements.e_pipe = {
 					}
 				}
 			}
-			var moved = false;
-			shuffleArray(squareCoordsShuffle);
-			for (var i = 0; i < squareCoordsShuffle.length; i++) {
-				var coord = squareCoordsShuffle[i];
-				var x = pixel.x+coord[0];
-				var y = pixel.y+coord[1];
-				if (!isEmpty(x,y,true)) {
-					var newPixel = pixelMap[x][y];
-					if (newPixel.element === "pipe") {
-						var nextStage;
-						switch (pixel.stage) {
-							case 2: nextStage = 4; break; //green
-							case 3: nextStage = 2; break; //red
-							case 4: nextStage = 3; break; //blue
-						}
-						if (pixel.con && !newPixel.con && newPixel.stage === nextStage) { //transfer to adjacent pipe
-							newPixel.con = pixel.con;
-							newPixel.con.x = newPixel.x;
-							newPixel.con.y = newPixel.y;
-							pixel.con = null;
-							moved = true;
-							break;
-						}
-					}
-					else if (!pixel.con && elements[newPixel.element].movable) { //suck up pixel
-						pixel.con = newPixel;
-						deletePixel(newPixel.x,newPixel.y);
-						pixel.con.x = pixel.x;
-						pixel.con.y = pixel.y;
-						pixel.con.del;
-						moved = true;
-						break;
-					}
-				}
-			}
-			if (pixel.con && !moved) { // move to same stage if none other
-				for (var i = 0; i < squareCoordsShuffle.length; i++) {
-					var coord = squareCoordsShuffle[i];
-					var x = pixel.x+coord[0];
-					var y = pixel.y+coord[1];
-					if (isEmpty(x,y)) {
-						delete pixel.con.del;
-						pixel.con.x = x;
-						pixel.con.y = y;
-						pixelMap[x][y] = pixel.con;
-						currentPixels.push(pixel.con);
-						pixel.con = null;
-						break;
-					}
-					if (!isEmpty(x,y,true) && elements[pixelMap[x][y].element].canContain) {
-						var newPixel = pixelMap[x][y];
-						if (newPixel.filter) {
-							if (newPixel.filter !== pixel.con.element && !newPixel.filter.split(",").includes(pixel.con.element)) continue
-						}
-						if (pixel.con && !newPixel.con && (pixelMap[x][y].element !== "pipe" || newPixel.stage === pixel.stage)) {
-							newPixel.con = pixel.con;
-							newPixel.con.x = newPixel.x;
-							newPixel.con.y = newPixel.y;
-							pixel.con = null;
-							break;
-						}
-					}
-				}
-			}
+            if (charged){
+            var moved = false;
+            shuffleArray(squareCoordsShuffle);
+            for (var i = 0; i < squareCoordsShuffle.length; i++) {
+                var coord = squareCoordsShuffle[i];
+                var x = pixel.x+coord[0];
+                var y = pixel.y+coord[1];
+                if (!isEmpty(x,y,true)) {
+                    var newPixel = pixelMap[x][y];
+                    if (newPixel.element === "e_pipe") {
+                        var nextStage;
+                        switch (pixel.stage) {
+                            case 2: nextStage = 4; break; //green
+                            case 3: nextStage = 2; break; //red
+                            case 4: nextStage = 3; break; //blue
+                        }
+                        if (pixel.con && !newPixel.con && newPixel.stage === nextStage) { //transfer to adjacent pipe
+                            newPixel.con = pixel.con;
+                            newPixel.con.x = newPixel.x;
+                            newPixel.con.y = newPixel.y;
+                            pixel.con = null;
+                            moved = true;
+                            break;
+                        }
+                    }
+                    else if (!pixel.con && elements[newPixel.element].movable) { //suck up pixel
+                        pixel.con = newPixel;
+                        deletePixel(newPixel.x,newPixel.y);
+                        pixel.con.x = pixel.x;
+                        pixel.con.y = pixel.y;
+                        pixel.con.del;
+                        moved = true;
+                        break;
+                    }
+                }
+            }
+                if (pixel.con && !moved) { // move to same stage if none other
+                    for (var i = 0; i < squareCoordsShuffle.length; i++) {
+                        var coord = squareCoordsShuffle[i];
+                        var x = pixel.x+coord[0];
+                        var y = pixel.y+coord[1];
+                        if (isEmpty(x,y)) {
+                            delete pixel.con.del;
+                            pixel.con.x = x;
+                            pixel.con.y = y;
+                            pixelMap[x][y] = pixel.con;
+                            currentPixels.push(pixel.con);
+                            pixel.con = null;
+                            break;
+                        }
+                        if (!isEmpty(x,y,true) && elements[pixelMap[x][y].element].canContain) {
+                            var newPixel = pixelMap[x][y];
+                            if (newPixel.filter) {
+                                if (newPixel.filter !== pixel.con.element && !newPixel.filter.split(",").includes(pixel.con.element)) continue
+                            }
+                            if (pixel.con && !newPixel.con && (pixelMap[x][y].element !== "e_pipe" || newPixel.stage === pixel.stage)) {
+                                newPixel.con = pixel.con;
+                                newPixel.con.x = newPixel.x;
+                                newPixel.con.y = newPixel.y;
+                                pixel.con = null;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 		}
 		doDefaults(pixel);
 	},
