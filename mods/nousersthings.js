@@ -1858,6 +1858,7 @@ elements.textured_rose_gold = {
     }
 }
 selvoid = 0;
+/*
 elements.selective_void = {
     category: "special",
     color: elements.void.color,
@@ -1883,7 +1884,12 @@ elements.selective_void = {
 			}
         }
     }
-} 
+}*/
+saveElementMigrations.selective_void = function(pixel){
+    pixel.element = "void";
+    pixel.filter = pixel.changeElem;
+    delete pixel.changeElem;
+}
 let circleElem = "wood"
 elements.scuffed_circle_brush = {
     category: "special",
