@@ -3341,8 +3341,8 @@ elements.e_void = {
     tick: function(pixel){
         if (pixel.charge){
             for (let i = 0; i<adjacentCoords.length;i++){
-                let x = adjacentCoords[i][0]
-                let y = adjacentCoords[i][0]
+                let x = pixel.x+adjacentCoords[i][0]
+                let y = pixel.y+adjacentCoords[i][0]
                 if (!isEmpty(x, y, true)){
                     let otherPixel = pixelMap[x][y]
                     if (typeof pixel.filter != "undefined"){
@@ -3366,8 +3366,8 @@ elements.smart_anti_void = {
     tick: function(pixel){
         if (typeof pixel.filter == "undefined"){changePixel(pixel, "flash"); logMessage("A void without valid properties was attempted to be placed."); return;}
         for (let i = 0; i<adjacentCoords.length;i++){
-            let x = adjacentCoords[i][0]
-            let y = adjacentCoords[i][0]
+            let x = pixel.x+adjacentCoords[i][0]
+            let y = pixel.y+adjacentCoords[i][0]
             if (!isEmpty(x, y, true)){
                 let otherPixel = pixelMap[x][y]
                 if (!isElementInProperty(otherPixel.element, pixel.filter)){deletePixel(otherPixel.x, otherPixel.y)}
@@ -3391,8 +3391,8 @@ elements.smart_anti_e_void = {
         if (typeof pixel.filter == "undefined"){changePixel(pixel, "flash"); logMessage("An anti-e-void without valid properties was attempted to be placed."); return;}
         if (pixel.charge){
             for (let i = 0; i<adjacentCoords.length;i++){
-                let x = adjacentCoords[i][0]
-                let y = adjacentCoords[i][0]
+                let x = pixel.x+adjacentCoords[i][0]
+                let y = pixel.y+adjacentCoords[i][0]
                 if (!isEmpty(x, y, true)){
                     let otherPixel = pixelMap[x][y]
                     if (!isElementInProperty(otherPixel.element, pixel.filter)){deletePixel(otherPixel.x, otherPixel.y)}
@@ -3453,7 +3453,7 @@ elements.anti_filter = {
 					pixel.filter !== newPixel.element ||
 					(pixel.filter !== elements[newPixel.element].state && elements[newPixel.element].movable)||
 					(pixel.filter.match(/,/) && !pixel.filter.split(",").includes(newPixel.element))
-				)) {
+				) && newPixel.element != "anti_filter") {
 					pixel.con = newPixel;
 					deletePixel(newPixel.x,newPixel.y);
 					pixel.con.x = pixel.x;
