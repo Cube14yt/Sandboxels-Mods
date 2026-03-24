@@ -3553,7 +3553,8 @@ elements.aerogel = {
                 }
             }
         }
-    }
+    },
+    movable: false
 }
 if (!elements.sand.reactions){element.sand.reactions = {}};
 elements.sand.reactions.acid = {elem1: "silica_gel", elem2: null}
@@ -3564,5 +3565,16 @@ elements.silica_gel = {
     behavior: behaviors.POWDER,
     tempHigh: elements.glass.tempHigh,
     stateHigh: [null, null, null, "molten_glass"],
-    reactions: {"carbon_dioxide": {elem1: "aerogel", elem2: "aerogel", tempMin: -60}, ...elements.sponge.reactions}
+    reactions:{
+        carbon_dioxide: {elem1: "aerogel", elem2: "aerogel", tempMax: -60},
+        water: {elem2: null},
+        salt_water: {elem2: [null, "salt"]},
+        sugar_water: {elem2: [null, "sugar"]},
+        pool_water: {elem2: [null, "chlorine"]},
+        mud: {elem2: "dirt"},
+        wet_sand: {elem2: "sand"},
+        soda: {elem2: [null, "sugar", "carbon_dioxide"]},
+        seltzer: {elem2: [null, "carbon_dioxide"]},
+        clay: {elem2: "clay_soil"}
+    }
 }
